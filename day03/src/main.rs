@@ -18,6 +18,24 @@ fn main() {
         .map(|(_, [a, b])| a.parse::<usize>().unwrap() * b.parse::<usize>().unwrap())
         .sum();
     println!("Part 1: {}", part_1);
+
+    let re = Regex::new(r"mul\((\d+),(\d+)\)|do\(\)|don't\(\)").unwrap();
+    let mut part_2 = 0;
+    let mut is_disabled = false;
+
+    for capture in re.captures_iter(&memory) {
+        match &capture[0] {
+            "do()" => is_disabled = false,
+            "don't()" => is_disabled = true,
+            _ => {
+                if !is_disabled {
+                    part_2 +=
+                        capture[1].parse::<usize>().unwrap() * capture[2].parse::<usize>().unwrap();
+                }
+            }
+        }
+    }
+    println!("Part 2: {}", part_2);
 }
 
 fn read_lines() -> io::Result<io::Lines<io::BufReader<File>>> {
