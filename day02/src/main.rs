@@ -1,14 +1,22 @@
 use std::{
     env,
     fs::File,
-    io::{self, BufRead}, str::FromStr,
+    io::{self, BufRead},
+    str::FromStr,
 };
 
 fn main() {
     let lines = read_lines().expect("Unable to read lines");
-    let reports = lines.map(|line| Report::from_str(&line.unwrap()).unwrap());
-    let safe_reports = reports.filter(|report| report.is_safe());
+    let reports: Vec<Report> = lines
+        .map(|line| Report::from_str(&line.unwrap()).unwrap())
+        .collect();
+    let safe_reports = reports.iter().filter(|report| report.is_safe());
     println!("Part 1: {}", safe_reports.count());
+
+    let safe_reports_with_dampener = reports
+        .iter()
+        .filter(|report| report.is_safe_with_dampener());
+    println!("Part 2: {}", safe_reports_with_dampener.count());
 }
 
 struct Report {
@@ -24,6 +32,16 @@ impl Report {
             let b = window[1];
             a != b && (a > b) == is_decreasing && usize::abs_diff(a, b) <= 3
         })
+    }
+
+    fn is_safe_with_dampener(&self) -> bool {
+        self.is_safe() || (0..self.levels.len()).any(|level| self.dampening_level(level).is_safe())
+    }
+
+    fn dampening_level(&self, level: usize) -> Report {
+        let mut new_levels = self.levels.clone();
+        new_levels.remove(level);
+        Report { levels: new_levels }
     }
 }
 
