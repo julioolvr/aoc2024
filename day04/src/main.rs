@@ -11,8 +11,11 @@ fn main() {
         .collect();
 
     let word_search = WordSearch { grid };
-    let part_1 = word_search.find();
+    let part_1 = word_search.find_xmas();
     println!("Part 1: {}", part_1);
+
+    let part_2 = word_search.find_x_mas();
+    println!("Part 2: {}", part_2);
 }
 
 struct WordSearch {
@@ -40,7 +43,7 @@ impl WordSearch {
         self.grid.len()
     }
 
-    fn find(&self) -> usize {
+    fn find_xmas(&self) -> usize {
         let mut result = 0;
 
         for y in 0..self.height() {
@@ -51,6 +54,31 @@ impl WordSearch {
                         .iter()
                         .filter(|direction| self.find_rest(x, y, &['M', 'A', 'S'], direction))
                         .count()
+                }
+            }
+        }
+
+        result
+    }
+
+    fn find_x_mas(&self) -> usize {
+        let mut result = 0;
+
+        for y in 0..self.height() {
+            for x in 0..self.width() {
+                if self.grid[y][x] == 'A' {
+                    use Direction::*;
+
+                    let first_mas = (self.find_rest(x, y, &['M'], &NW)
+                        && self.find_rest(x, y, &['S'], &SE))
+                        || (self.find_rest(x, y, &['M'], &SE) && self.find_rest(x, y, &['S'], &NW));
+                    let second_mas = (self.find_rest(x, y, &['M'], &NE)
+                        && self.find_rest(x, y, &['S'], &SW))
+                        || (self.find_rest(x, y, &['M'], &SW) && self.find_rest(x, y, &['S'], &NE));
+
+                    if first_mas && second_mas {
+                        result += 1;
+                    }
                 }
             }
         }
